@@ -11,4 +11,4 @@ CLI utility that takes a single output file and a list of input files. Input fil
 3. Run `go get github.com/paulmach/go.geojson`
 4. Run `go get github.com/golang/geo`
 5. Run `go build`
-6. Run `./geojson-summary OUTPUTFILE INPUTFILE [INPUTFILE2 ...]
+6. Run `./geojson-summary OUTPUTFILE INPUTFILE [INPUTFILE2 ...]` for example: `./geojson-summary /mnt/d4d/testoutput.geojson /mnt/d4d/geojson/20181101030142_20181113030142_351541N-ACD-BETA/01Nov18S1B101586_02_13Nov18S1B102974_02_ACD_Arrivals.geojson /mnt/d4d/geojson/20181101030142_20181113030142_351541N-ACD-BETA/01Nov18S1B101586_02_13Nov18S1B102974_02_ACD_Arrivals.geojson`
