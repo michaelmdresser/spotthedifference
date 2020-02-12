@@ -155,8 +155,6 @@ func main() {
 	output := args[0]
 	files := args[1:]
 
-	fmt.Println(generateFilteredFilename(files[0]))
-
 	region := getBoundingLoop()
 
 	filterGeojsonFilesToRegion(files, output, region)
