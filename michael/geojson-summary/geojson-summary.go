@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/golang/geo/s2"
 	geojson "github.com/paulmach/go.geojson"
@@ -145,6 +146,121 @@ func filterGeojsonFileToRegion(file, newFile string, region *s2.Loop) {
 	writeFeatureCollectionToRegularFile(filteredFC, newFile)
 }
 
+func min(n1, n2 float64) float64 {
+	if n1 < n2 {
+		return n1
+	}
+	return n2
+}
+
+func max(n1, n2 float64) float64 {
+	if n1 > n2 {
+		return n1
+	}
+	return n2
+}
+
+func getMinMaxLatLonBoundsForFeatureCollection(fc *geojson.FeatureCollection) (minLat, minLong, maxLat, maxLong float64) {
+	for i, f := range fc.Features {
+		featLong := f.Geometry.Point[0]
+		featLat := f.Geometry.Point[1]
+		if i == 0 {
+			minLat = featLat
+			minLong = featLong
+			maxLat = featLat
+			maxLong = featLong
+		} else {
+			minLat = min(minLat, featLat)
+			maxLat = max(maxLat, featLat)
+			minLong = min(minLong, featLong)
+			maxLong = max(maxLong, featLong)
+		}
+	}
+
+	return minLat, minLong, maxLat, maxLong
+}
+
+func getMinMaxLanLonBoundsMultiFile(files []string) (minLat, minLong, maxLat, maxLong float64) {
+	log.Printf("getting min and max latlong pairs from %s", files)
+
+	for i, file := range files {
+		fc, err := getFeatureCollectionFromFile(file)
+		if err != nil {
+			// TODO: don't panic
+			panic(err)
+		}
+
+		localMinLat, localMinLong, localMaxLat, localMaxLong := getMinMaxLatLonBoundsForFeatureCollection(fc)
+		if i == 0 {
+			minLat = localMinLat
+			minLong = localMinLong
+			maxLat = localMaxLat
+			maxLong = localMaxLong
+		} else {
+			minLat = min(minLat, localMinLat)
+			minLong = min(minLong, localMinLong)
+			maxLat = max(maxLat, localMaxLat)
+			maxLong = min(maxLong, localMaxLong)
+		}
+	}
+
+	return minLat, minLong, maxLat, maxLong
+}
+
+func bucketRegionsFromMinMax(minLat, minLong, maxLat, maxLong float64, latBuckets, longBuckets int) []*s2.Loop {
+	var regions []*s2.Loop
+
+	latStepSize := (maxLat - minLat) / float64(latBuckets)
+	longStepSize := (maxLong - minLong) / float64(longBuckets)
+
+	topLeftLat := minLat
+	topLeftLong := minLong
+	bottomRightLat := minLat + latStepSize
+	bottomRightLong := minLong + longStepSize
+
+	for bottomRightLong <= maxLong {
+		for bottomRightLat <= maxLat {
+			topRightLat := bottomRightLat
+			topRightLong := topLeftLong
+			bottomLeftLat := topLeftLat
+			bottomLeftLong := bottomRightLong
+
+			topLeftPoint := s2.PointFromLatLng(s2.LatLngFromDegrees(topLeftLat, topLeftLong))
+			topRightPoint := s2.PointFromLatLng(s2.LatLngFromDegrees(topRightLat, topRightLong))
+			bottomLeftPoint := s2.PointFromLatLng(s2.LatLngFromDegrees(bottomLeftLat, bottomLeftLong))
+			bottomRightPoint := s2.PointFromLatLng(s2.LatLngFromDegrees(bottomRightLat, bottomRightLong))
+
+			regions = append(regions, s2.LoopFromPoints([]s2.Point{topLeftPoint, bottomLeftPoint, bottomRightPoint, topRightPoint}))
+
+			topLeftLat += latStepSize
+			bottomRightLat += latStepSize
+		}
+		topLeftLong += longStepSize
+		bottomRightLong += longStepSize
+	}
+
+	return regions
+}
+
+func bucketifyData(files []string, outputDir string, latBuckets, longBuckets int) {
+	if strings.Contains(outputDir[len(outputDir)-1:], "/") {
+		outputDir = outputDir[:len(outputDir)-1]
+	}
+	log.Printf("bucketifying the following files into %d latBuckets and %d longBuckets: %+v\n", latBuckets, longBuckets, files)
+	minLat, minLong, maxLat, maxLong := getMinMaxLanLonBoundsMultiFile(files)
+	regions := bucketRegionsFromMinMax(minLat, minLong, maxLat, maxLong, latBuckets, longBuckets)
+	log.Printf("created %d regions\n", len(regions))
+
+	for i, region := range regions {
+		log.Printf("filtering files to region %d\n", i)
+		filterGeojsonFilesToRegion(
+			files,
+			fmt.Sprintf("%s/bucket_%d_lats%d_longs%d", outputDir, i, latBuckets, longBuckets),
+			region,
+		)
+	}
+}
+
 // generateFilteredFilename is for auto-generating filenames for filtered geojsons if outputting each filtered geojson separates as opposed to building a single master geojson. NOT IN USE.
 func generateFilteredFilename(original string) string {
 	return original[:len(original)-8] + "_filtered.geojson"
@@ -152,10 +268,13 @@ func generateFilteredFilename(original string) string {
 
 func main() {
 	args := os.Args[1:]
-	output := args[0]
+	// output := args[0]
+	// files := args[1:]
+
+	// region := getBoundingLoop()
+	// filterGeojsonFilesToRegion(files, output, region)
+
+	outputDir := args[0]
 	files := args[1:]
-
-	region := getBoundingLoop()
-
-	filterGeojsonFilesToRegion(files, output, region)
+	bucketifyData(files, outputDir, 10, 10)
 }
