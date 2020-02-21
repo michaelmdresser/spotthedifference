@@ -235,6 +235,8 @@ func bucketRegionsFromMinMax(minLat, minLong, maxLat, maxLong float64, latBucket
 			topLeftLat += latStepSize
 			bottomRightLat += latStepSize
 		}
+		topLeftLat := minLat
+		bottomRightLat := minLat + latStepSize
 		topLeftLong += longStepSize
 		bottomRightLong += longStepSize
 	}
@@ -255,7 +257,7 @@ func bucketifyData(files []string, outputDir string, latBuckets, longBuckets int
 		log.Printf("filtering files to region %d\n", i)
 		filterGeojsonFilesToRegion(
 			files,
-			fmt.Sprintf("%s/bucket_%d_lats%d_longs%d", outputDir, i, latBuckets, longBuckets),
+			fmt.Sprintf("%s/bucket_%d_lats%d_longs%d.geojson", outputDir, i, latBuckets, longBuckets),
 			region,
 		)
 	}
