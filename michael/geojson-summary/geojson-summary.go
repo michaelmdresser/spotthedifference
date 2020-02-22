@@ -233,8 +233,8 @@ func bucketRegionsFromMinMax(minLat, minLong, maxLat, maxLong float64, latBucket
 	bottomRightLat := minLat + latStepSize
 	bottomRightLong := minLong + longStepSize
 
-	for bottomRightLong <= maxLong {
-		for bottomRightLat <= maxLat {
+	for bottomRightLong <= maxLong+longStepSize {
+		for bottomRightLat <= maxLat+latStepSize {
 			topRightLat := bottomRightLat
 			topRightLong := topLeftLong
 			bottomLeftLat := topLeftLat
