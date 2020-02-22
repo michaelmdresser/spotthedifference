@@ -42,6 +42,21 @@ func getFeatureCollectionsFromFiles(files []string) ([]*geojson.FeatureCollectio
 	return unmarshalledGeojsons, nil
 }
 
+func getFeatureCollectionFromFiles(files []string) (*geojson.FeatureCollection, error) {
+	fcs, err := getFeatureCollectionsFromFiles(files)
+	if err != nil {
+		return nil, err
+	}
+
+	masterFc := geojson.NewFeatureCollection()
+
+	for _, fc := range fcs {
+		masterFc.Features = append(masterFc.Features, fc.Features...)
+	}
+
+	return masterFc, nil
+}
+
 // latLngFromGeojsonPoint creates an s2.LatLng struct from a geojson.Feature, expected to be of type Point
 func latLngFromGeojsonPoint(f *geojson.Feature) s2.LatLng {
 	// TODO: check if point
@@ -138,7 +153,7 @@ func filterGeojsonFileToRegion(file, newFile string, region *s2.Loop) {
 	}
 	log.Printf("%s is a feature collection with %d features", file, len(fc.Features))
 
-	filteredFC := filterFeatureCollectionToRegion(fc, getBoundingLoop())
+	filteredFC := filterFeatureCollectionToRegion(fc, region)
 
 	log.Printf("filtered collection has %d features", len(filteredFC.Features))
 
@@ -260,6 +275,28 @@ func bucketifyData(files []string, outputDir string, latBuckets, longBuckets int
 			fmt.Sprintf("%s/bucket_%d_lats%d_longs%d.geojson", outputDir, i, latBuckets, longBuckets),
 			region,
 		)
+	}
+}
+
+func bucketifyDataMem(files []string, outputDir string, latBuckets, longBuckets int) {
+	if strings.Contains(outputDir[len(outputDir)-1:], "/") {
+		outputDir = outputDir[:len(outputDir)-1]
+	}
+	log.Printf("bucketifying the following files into %d latBuckets and %d longBuckets: %+v\n", latBuckets, longBuckets, files)
+	minLat, minLong, maxLat, maxLong := getMinMaxLanLonBoundsMultiFile(files)
+	regions := bucketRegionsFromMinMax(minLat, minLong, maxLat, maxLong, latBuckets, longBuckets)
+	log.Printf("created %d regions\n", len(regions))
+
+	masterFc, err := getFeatureCollectionFromFiles(files)
+	if err != nil {
+		panic(err)
+	}
+
+	for i, region := range regions {
+		log.Printf("filtering master fc to region #%d\n", i)
+		fc := filterFeatureCollectionToRegion(masterFc, region)
+		log.Printf("region #%d has %d points\n", i, len(fc.Features))
+		writeFeatureCollectionToRegularFile(fc, fmt.Sprintf("%s/region_%d.geojson", outputDir, i))
 	}
 }
 
