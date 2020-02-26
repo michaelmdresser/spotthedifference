@@ -1,0 +1,8 @@
+% time python3 count_geojson_points.py /mnt/d4d/geojson/*/*Departures.geojson /mnt/d4d/geojson/*/*Arrivals.geojson                                                                               20-02-25 - 22:35:03
+total features: 5476922
+python3 count_geojson_points.py /mnt/d4d/geojson/*/*Departures.geojson   68.41s user 8.37s system 41% cpu 3:03.57 total
+
+
+% time python3 merge_geojson_files.py /mnt/d4d/filtered_geojsons/allpoints.geojson /mnt/d4d/geojson/*/*Departures.geojson /mnt/d4d/geojson/*/*Arrivals.geojson                                   20-02-25 - 22:40:11
+total features: 5476922
+python3 merge_geojson_files.py /mnt/d4d/filtered_geojsons/allpoints.geojson    175.21s user 6.03s system 77% cpu 3:53.58 total
