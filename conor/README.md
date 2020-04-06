@@ -9,7 +9,8 @@ This is an example output, using Michael's `geojson-summary` code, of all of the
 
 #### `Understanding_Clustering.ipynb`
 
-This is a Jupyter Notebook that demonstrates how clusters are formed from **a singlular** timestamp in `clustering_example.geojson`: March 16th, 2019. The notebook is annotated to help explain how clustering is done. Refer to our write-up for a conceptual understanding of what clusters are. The final output of this notebook is an HTML file displaying the clusters (represented as circles) on a Leaflet map. The notebook will automatically open this HTML file in a web browser. Smaller clusters are represented in blue and larger clusters are represented in red. Click on a cluster for a popup on the cluster number and size.
+This is a Jupyter Notebook that demonstrates how 10km clusters are formed from **a singlular** timestamp in `clustering_example.geojson`: March 16th, 2019. The notebook is annotated to help explain how clustering is done. Refer to our write-up for a conceptual understanding of what clusters are. The final output of this notebook is an HTML file displaying the clusters (represented as circles) on a Leaflet map. The notebook will automatically open this HTML file in a web browser. Smaller clusters are represented in blue and larger clusters are represented in red. Click on a cluster for a popup on the cluster number and size.
+
 Note that any local file paths will have to be changed to run in a different environment.
 
 #### `sample_map.html`
@@ -18,7 +19,8 @@ This is the output file from the `Understanding_Clustering.ipynb` notebook descr
 
 #### `Cluster_All.ipynb`
 
-Here is the most exciting piece of my work. This is a Jupyter Notebook that demonstrates how clusters are formed from **every timestamp/collect** in `clustering_example.geojson`. Refer to our write-up for a conceptual understanding of what clusters are. The final output of this notebook is a folder of many HTML files displaying the clusters (represented as circles) on a Leaflet map. The notebook will automatically open the first timestamp of the dataset in a web browser. Smaller clusters are represented in blue and larger clusters are represented in red. Click on a cluster for a popup on the cluster number and size. **There are "next" and "previous" buttons on the side of the Leaflet map that will cycle through the timestamps/collects.** 
+Here is the most exciting piece of my work. This is a Jupyter Notebook that demonstrates how 10km clusters are formed from **every timestamp/collect** in `clustering_example.geojson`. Refer to our write-up for a conceptual understanding of what clusters are. The final output of this notebook is a folder of many HTML files displaying the clusters (represented as circles) on a Leaflet map. The notebook will automatically open the first timestamp of the dataset in a web browser. Smaller clusters are represented in blue and larger clusters are represented in red. Click on a cluster for a popup on the cluster number and size. **There are "next" and "previous" buttons on the side of the Leaflet map that will cycle through the timestamps/collects.** 
+
 Note that any local file paths will have to be changed to run in a different environment.
 
 
