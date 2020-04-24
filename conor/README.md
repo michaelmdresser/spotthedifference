@@ -29,3 +29,11 @@ Note that any local file paths will have to be changed to run in a different env
 #### `map_outputs`
 
 This is a folder containing all of the outputted HTML files from the `Cluster_All.ipynb` notebook described above. You may open `map1.html` in a browser to start at the first timestamp and cycle through each collect without running the notebook.
+
+
+## Noteworthy Technical Details on Clustering
+
+* The capability of the bounding box being analyzed is restricted by file size; processing too many points at once can cause the program to crash, so bounding boxes may need to be broken down into smaller units / boxes.
+* Our implementation of clustering used `geojson-summary` to create a bounding box that is small enough for the program to run.
+* The default cluster distance threshold in our program is 10 km
+* The radius of the circles that represent clusters use the average distance from the centroid to each point in the cluster by default; however, maximum distance is also calculated in the program, and this can be used for a circular representation that will capture every point in a cluster with 100% accuracy
