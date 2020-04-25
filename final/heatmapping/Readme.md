@@ -25,7 +25,7 @@ There is a .ipynb Jupyter Notebook file that can be run when Jupyter Notebook is
 
 There is also a .py file that can be run from a terminal/shell using a command like:
 
->python d4d_final_deliverable.py
+>python d4d_deliverable.py
 
 #### Program output:
 
